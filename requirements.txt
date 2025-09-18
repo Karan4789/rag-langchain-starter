@@ -1,0 +1,29 @@
+# Core RAG and LangChain components
+langchain
+langchain-openai
+langchain-google-genai
+langchain-community
+langchain-ollama
+
+
+# For data loading (e.g., PDFs)
+pypdf
+
+# Vector store (FAISS for local storage)
+faiss-cpu
+
+# Vector store (ChromaDB for local storage)
+chromadb
+
+# For managing environment variables (API keys)
+python-dotenv
+
+# For creating an API (optional but good practice)
+fastapi
+uvicorn[standard]
+
+# For experimentation in notebooks
+jupyter
+
+# For token counting
+tiktoken
