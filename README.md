@@ -21,14 +21,15 @@ Follow these steps to set up and run the project on your local machine.
 ### Prerequisites
 
 *   Python 3.8+
-*   An API key from an LLM provider (e.g., OpenAI).
+*   [Ollama](https://ollama.com/) installed and running locally.
+*   A Google API key for the Gemini model.
 
 ### Setup
 
 1.  **Clone the repository**
     ```bash
     git clone <your-repository-url>
-    cd rag
+    cd rag-langchain-starter
     ```
 
 2.  **Create and activate a virtual environment**
@@ -43,27 +44,34 @@ Follow these steps to set up and run the project on your local machine.
     ```
 
 3.  **Install dependencies**
-    Create a `requirements.txt` file with the following content:
+    Your `requirements.txt` file should contain the following:
     ```txt
     langchain
+    langchain-chroma
     langchain-community
-    langchain-openai
+    langchain-google-genai
+    langchain-ollama
     pypdf
     python-dotenv
-    faiss-cpu
     ```
     Then, install the packages:
     ```bash
     pip install -r requirements.txt
     ```
 
-4.  **Add your documents**
-    Place your PDF documents inside the `data/` directory. If the directory doesn't exist, create it at the root of the project.
-
-5.  **Set up environment variables**
-    Create a file named `.env` in the root of the project and add your LLM API key:
+4.  **Pull the Ollama embedding model**
+    This project uses `nomic-embed-text` for creating embeddings. Pull it via Ollama:
+    ```bash
+    ollama pull nomic-embed-text
     ```
-    OPENAI_API_KEY="your-api-key-here"
+
+5.  **Add your documents**
+    Place your PDF documents inside the `data/` directory.
+
+6.  **Set up environment variables**
+    Create a file named `.env` in the root of the project and add your Google API key:
+    ```
+    GOOGLE_API_KEY="your-google-api-key-here"
     ```
 
 ### How to Run
@@ -71,18 +79,17 @@ Follow these steps to set up and run the project on your local machine.
 The RAG pipeline is executed in two main phases: Ingestion and Querying.
 
 1.  **Ingestion**
-    This one-time process loads your documents, splits them into chunks, creates embeddings, and stores them in a vector database.
+    This process loads your documents, splits them, creates embeddings using Ollama, and stores them in a Chroma vector database.
     ```bash
-    python src/ingest.py
+    python main.py
     ```
-    This script will process the documents in the `data/` directory and create a vector store in the `vector_store/` directory.
+    This script will process the documents in the `data/` directory and create a vector store in the `db/` directory.
 
 2.  **Querying**
-    Once ingestion is complete, you can ask questions.
+    Once ingestion is complete, you can ask questions. This script retrieves relevant context from the database and uses Google's Gemini model to generate an answer.
     ```bash
-    python src/query.py "Your question here"
+    python src/retrieval/generate.py "Your question here"
     ```
-    This will use the vector store to find relevant context and generate an answer.
 
 ## Project Structure
 
@@ -92,29 +99,28 @@ rag-langchain-starter/
 │   └── source_documents/
 │       └── Sample_data.pdf
 ├── db/
-│   ├── 29891a8f-0165-4f40-8ff8-ceb52e94674e/
+│   ├── ... (ChromaDB files)
 │   └── chroma.sqlite3
 ├── src/
 │   ├── core/
 │   │   └── __init__.py
 │   ├── ingestion/
 │   │   ├── __init__.py
-│   │   ├── embed.py
-│   │   ├── load.py
-│   │   ├── split.py
-│   │   └── store.py
+│   │   ├── embed.py       # Handles embedding creation (Ollama)
+│   │   ├── load.py        # Loads PDF documents
+│   │   ├── split.py       # Splits documents into chunks
+│   │   └── store.py       # Stores chunks in ChromaDB
 │   ├── retrieval/
 │   │   ├── __init__.py
-│   │   ├── generate.py
-│   │   └── search.py
+│   │   ├── generate.py    # Generates answers using Gemini
+│   │   └── search.py      # Searches for relevant chunks
 ├── tests/
 │   └── test_ingestion.py
 ├── .env
 ├── .gitignore
 ├── .python-version
-├── main.py
+├── main.py                # Main script for the ingestion pipeline
 ├── pyproject.toml
 ├── README.md
 └── requirements.txt
-
 ```
