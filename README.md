@@ -1,126 +1,156 @@
-# Simple RAG Project
+# RAG System with Parent Document Retrieval
 
-This project is a basic implementation of a Retrieval-Augmented Generation (RAG) pipeline. It's designed for beginners to understand the core concepts of RAG and see them in action.
+A Retrieval-Augmented Generation (RAG) system that uses **Parent Document Retrieval** and **FlashrankRerank** to provide accurate answers from your PDF documents.
 
-## What is Retrieval-Augmented Generation (RAG)?
+## What is RAG?
 
-Retrieval-Augmented Generation (RAG) is a technique for enhancing the accuracy and reliability of Large Language Models (LLMs) by providing them with information from an external knowledge base.
+Retrieval-Augmented Generation (RAG) enhances Large Language Models (LLMs) by grounding their responses in your own documents. Instead of relying solely on pre-trained knowledge, the system retrieves relevant information from your documents to generate accurate, context-aware answers.
 
-In simple terms, instead of just relying on its pre-trained knowledge, the LLM can "look up" relevant information from your own documents to answer a question. This is particularly useful when you want the LLM to answer questions about specific, private, or very recent information.
+**How it works:**
+1. **Ingestion**: Documents are loaded, split into parent and child chunks, embedded, and stored in a vector database
+2. **Retrieval**: When you ask a question, the system searches for relevant child chunks, retrieves their parent chunks for better context, and reranks them
+3. **Generation**: The LLM uses the retrieved context to generate an informed answer
 
-The process typically involves two main stages:
-1.  **Ingestion**: Your documents are loaded, split into smaller chunks, and converted into numerical representations (embeddings) which are then stored in a special database called a vector store.
-2.  **Retrieval & Generation**: When you ask a question, the system searches the vector store for the most relevant document chunks. These chunks are then passed to the LLM along with your original question, providing it with the necessary context to generate a well-informed answer.
+For more details, read this article: [Retrieval-Augmented Generation](https://medium.com/%40bellasenior/retrieval-augmented-generation-23005432cbc1)
 
-For a more detailed explanation, check out this article on [Retrieval-Augmented Generation](https://medium.com/%40bellasenior/retrieval-augmented-generation-23005432cbc1).
+## Key Features
 
-## Getting Started
+- **Parent Document Retrieval**: Searches using small chunks but retrieves larger parent chunks for better context
+- **FlashrankRerank**: Improves result quality by reranking retrieved documents
+- **Local Embeddings**: Uses Ollama's `embeddinggemma:300m` model locally
+- **Google Gemini**: Powered by `gemini-2.5-flash` for answer generation
 
-Follow these steps to set up and run the project on your local machine.
+## Prerequisites
 
-### Prerequisites
+- Python 3.12+
+- [Ollama](https://ollama.com/) installed and running
+- Google API key for Gemini
 
-*   Python 3.8+
-*   [Ollama](https://ollama.com/) installed and running locally.
-*   A Google API key for the Gemini model.
+## Setup
 
-### Setup
+1. **Clone the repository**
+   ```bash
+   git clone <your-repository-url>
+   cd rag
+   ```
 
-1.  **Clone the repository**
-    ```bash
-    git clone <your-repository-url>
-    cd rag-langchain-starter
-    ```
+2. **Create and activate a virtual environment**
+   ```bash
+   # Windows
+   uv venv
+   .\venv\Scripts\activate
 
-2.  **Create and activate a virtual environment**
-    ```bash
-    # For macOS/Linux
-    python3 -m venv venv
-    source venv/bin/activate
+   # macOS/Linux
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
 
-    # For Windows
-    python -m venv venv
-    .\venv\Scripts\activate
-    ```
+3. **Install dependencies**
+   ```bash
+   uv sync
+   ```
 
-3.  **Install dependencies**
-    Your `requirements.txt` file should contain the following:
-    ```txt
-    langchain
-    langchain-chroma
-    langchain-community
-    langchain-google-genai
-    langchain-ollama
-    pypdf
-    python-dotenv
-    ```
-    Then, install the packages:
-    ```bash
-    pip install -r requirements.txt
-    ```
+4. **Pull the Ollama embedding model**
+   ```bash
+   ollama pull embeddinggemma:300m
+   ```
 
-4.  **Pull the Ollama embedding model**
-    This project uses `nomic-embed-text` for creating embeddings. Pull it via Ollama:
-    ```bash
-    ollama pull nomic-embed-text
-    ```
+5. **Set up environment variables**
+   Create a `.env` file in the project root:
+   ```
+   GOOGLE_API_KEY=your-google-api-key-here
+   ```
 
-5.  **Add your documents**
-    Place your PDF documents inside the `data/` directory.
+6. **Add your documents**
+   Place PDF files in the `data/` directory
 
-6.  **Set up environment variables**
-    Create a file named `.env` in the root of the project and add your Google API key:
-    ```
-    GOOGLE_API_KEY="your-google-api-key-here"
-    ```
+## Usage
 
-### How to Run
+### 1. Ingest Documents
 
-The RAG pipeline is executed in two main phases: Ingestion and Querying.
+Run the ingestion pipeline to process your PDFs:
 
-1.  **Ingestion**
-    This process loads your documents, splits them, creates embeddings using Ollama, and stores them in a Chroma vector database.
-    ```bash
-    python main.py
-    ```
-    This script will process the documents in the `data/` directory and create a vector store in the `db/` directory.
+```bash
+python src/ingest.py
+```
 
-2.  **Querying**
-    Once ingestion is complete, you can ask questions. This script retrieves relevant context from the database and uses Google's Gemini model to generate an answer.
-    ```bash
-    python src/retrieval/generate.py "Your question here"
-    ```
+This will:
+- Load all PDFs from `data/`
+- Split them into parent chunks (2000 chars) and child chunks (400 chars)
+- Create embeddings for child chunks using Ollama
+- Store everything in ChromaDB at `db/`
+
+### 2. Query Your Documents
+
+Ask questions about your documents:
+
+```bash
+python src/retrieval/generate.py "What is the main topic?"
+```
+
+The system will:
+- Search for relevant child chunks
+- Retrieve parent chunks for context
+- Rerank results using Flashrank
+- Generate an answer using Google Gemini
+
+### 3. Run Full Pipeline (Optional)
+
+Run ingestion and query in one command:
+
+```bash
+python app.py "Your question here"
+```
+
+This clears the database, re-ingests documents, and generates an answer.
 
 ## Project Structure
 
 ```
-rag-langchain-starter/
-├── data/
-│   └── source_documents/
-│       └── Sample_data.pdf
-├── db/
-│   ├── ... (ChromaDB files)
-│   └── chroma.sqlite3
+rag/
+├── data/                           # Your PDF documents
+├── db/                             # ChromaDB vector store
+│   ├── chroma.sqlite3
+│   ├── a381fad3-.../              # Vector embeddings
+│   └── parent_docs/               # Parent document store
 ├── src/
-│   ├── core/
-│   │   └── __init__.py
+│   ├── ingest.py                  # Main ingestion script
 │   ├── ingestion/
-│   │   ├── __init__.py
-│   │   ├── embed.py       # Handles embedding creation (Ollama)
-│   │   ├── load.py        # Loads PDF documents
-│   │   ├── split.py       # Splits documents into chunks
-│   │   └── store.py       # Stores chunks in ChromaDB
-│   ├── retrieval/
-│   │   ├── __init__.py
-│   │   ├── generate.py    # Generates answers using Gemini
-│   │   └── search.py      # Searches for relevant chunks
-├── tests/
-│   └── test_ingestion.py
-├── .env
-├── .gitignore
-├── .python-version
-├── main.py                # Main script for the ingestion pipeline
-├── pyproject.toml
-├── README.md
-└── requirements.txt
+│   │   ├── load.py                # Load PDFs
+│   │   ├── embed.py               # Ollama embeddings
+│   │   └── store.py               # Parent Document Retrieval storage
+│   └── retrieval/
+│       ├── generate.py            # Generate answers with reranking
+│       └── search.py              # Basic similarity search
+├── app.py                         # Full pipeline runner
+├── .env                           # API keys
+├── requirements.txt
+└── README.md
 ```
+
+## How Parent Document Retrieval Works
+
+1. **Child Chunks (400 chars)**: Small, focused chunks for precise embedding and search
+2. **Parent Chunks (2000 chars)**: Larger chunks that provide full context to the LLM
+3. **Search Process**: 
+   - Query is embedded and matched against child chunks
+   - Parent chunks are retrieved for matched children
+   - Results are reranked using Flashrank
+   - Top parent chunks are sent to the LLM
+
+This approach balances search precision with contextual richness.
+
+## Technologies
+
+- **LangChain**: RAG orchestration
+- **Ollama** (`embeddinggemma:300m`): Local embeddings
+- **ChromaDB**: Vector database
+- **Google Gemini** (`gemini-2.5-flash`): LLM for generation
+- **Flashrank**: Result reranking
+- **FastAPI**: (Future) API endpoints
+
+## Troubleshooting
+
+- **Ollama connection error**: Make sure Ollama is running (`ollama serve`)
+- **Google API error**: Verify your `GOOGLE_API_KEY` in `.env`
+- **Empty results**: Ensure documents are properly ingested before querying
