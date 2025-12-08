@@ -4,14 +4,12 @@
 from langchain_ollama import OllamaEmbeddings
 from dotenv import load_dotenv
 
-
 load_dotenv()
-
 
 def get_embedding_function():
     """
     Initializes and returns the embedding model.
     """
    
-    embeddings = OllamaEmbeddings(model="nomic-embed-text")
+    embeddings = OllamaEmbeddings(model="embeddinggemma:300m")
     return embeddings
