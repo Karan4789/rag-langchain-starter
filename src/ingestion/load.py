@@ -1,33 +1,43 @@
-# src/ingestion/load.py
-
 import os
-from langchain_community.document_loaders import PyPDFLoader, DirectoryLoader
-from dotenv import load_dotenv
+from .loaders.pdf import load_pdf
+# NEW IMPORT
+from .loaders.excel import load_excel
 
-# Load environment variables from .env file
-load_dotenv()
-
-DATA_PATH = "data/"
-
-def load_documents():
-    """
-    Loads documents from the source documents directory.
-    For now, it's configured to load PDF files.
-    """
-    # Initialize the DirectoryLoader to load .pdf files
-    loader = DirectoryLoader(DATA_PATH, glob="**/*.pdf", loader_cls=PyPDFLoader)
+def load_documents(data_dir="data"):
+    all_documents = []
     
-    # Load the documents
-    documents = loader.load()
+    if not os.path.exists(data_dir):
+        return []
     
-    print(f"Loaded {len(documents)} document(s).")
-    return documents
+    files = [f for f in os.listdir(data_dir) if os.path.isfile(os.path.join(data_dir, f))]
+    print(f"📂 Found {len(files)} files in '{data_dir}'")
 
-# A simple test to run this script directly
-if __name__ == "__main__":
-    documents = load_documents()
-    # Print the first 200 characters of the first document's content
-    if documents:
-        print("\nSample content from the first document:")
-        print(documents[0].page_content[:200])
+    for filename in files:
+        file_path = os.path.join(data_dir, filename)
+        ext = os.path.splitext(filename)[1].lower()
 
+        # PDF Support
+        if ext == ".pdf":
+            try:
+                docs = load_pdf(file_path)
+                all_documents.extend(docs)
+                print(f"   ✅ Loaded {len(docs)} chunks from {filename}")
+            except Exception as e:
+                print(f"   ❌ Failed to load {filename}: {e}")
+
+        # Excel Support
+        elif ext in [".xlsx", ".xls", ".csv"]:
+            try:
+                docs = load_excel(file_path)
+                all_documents.extend(docs)
+                print(f"   ✅ Loaded {len(docs)} rows from {filename}")
+            except Exception as e:
+                print(f"   ❌ Failed to load Excel {filename}: {e}")
+        
+        elif ext in [".docx", ".pptx"]:
+            print(f"   ⏳ Office support coming soon for: {filename}")
+            
+        else:
+            print(f"   ⚠️ Skipping: {filename}")
+            
+    return all_documents

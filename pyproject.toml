@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "chromadb>=1.1.0",
+    "docx2txt>=0.9",
     "faiss-cpu>=1.12.0",
     "fastapi>=0.116.2",
     "flashrank>=0.2.10",
@@ -16,8 +17,13 @@ dependencies = [
     "langchain-google-genai>=2.1.12",
     "langchain-ollama>=0.3.8",
     "langchain-openai>=0.3.33",
+    "llama-parse>=0.6.88",
+    "openpyxl>=3.1.5",
+    "pandas>=2.3.3",
     "pypdf>=6.0.0",
     "python-dotenv>=1.1.1",
+    "python-pptx>=1.0.2",
     "tiktoken>=0.11.0",
+    "unstructured>=0.18.21",
     "uvicorn[standard]>=0.35.0",
 ]
