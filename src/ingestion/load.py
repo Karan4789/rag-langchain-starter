@@ -1,6 +1,5 @@
 import os
 from .loaders.pdf import load_pdf
-# NEW IMPORT
 from .loaders.excel import load_excel
 
 def load_documents(data_dir="data"):

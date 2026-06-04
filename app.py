@@ -7,7 +7,6 @@ sys.path.append(os.path.abspath('src'))
 from src.ingestion.load import load_documents
 from src.ingestion.embed import get_embedding_function
 from src.ingestion.store import ingest_documents
-# Import the new function directly
 from src.retrieval.generate import query_rag 
 
 def clear_database():
