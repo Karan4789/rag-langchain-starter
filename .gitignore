@@ -13,3 +13,4 @@ wheels/
 
 # Database files
 db/
+data/

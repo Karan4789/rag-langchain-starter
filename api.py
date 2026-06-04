@@ -6,16 +6,14 @@ from pydantic import BaseModel
 
 sys.path.append(os.path.abspath("src"))
 
+from core.config import DATA_FOLDER, API_TITLE, API_VERSION, API_HOST, API_PORT, API_RELOAD
 from retrieval.generate import query_rag
 from ingestion.store import ingest_documents
 from ingestion.load import load_documents
 from ingestion.embed import get_embedding_function
 import uvicorn
 
-app = FastAPI(title="RAG API", version="1.0")
-
-DATA_FOLDER = "data"
-os.makedirs(DATA_FOLDER, exist_ok=True)
+app = FastAPI(title=API_TITLE, version=API_VERSION)
 
 class QueryRequest(BaseModel):
     question: str
@@ -69,5 +67,4 @@ async def upload_and_ingest(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Ingestion failed: {str(e)}")
 
 if __name__ == "__main__":
-    
-    uvicorn.run(app, host="localhost", port=8000)
+    uvicorn.run(app, host=API_HOST, port=API_PORT, reload=API_RELOAD)

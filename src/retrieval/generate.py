@@ -8,7 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from langchain_chroma import Chroma
 from langchain.prompts import ChatPromptTemplate
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 from langchain.retrievers import ContextualCompressionRetriever
 from langchain.retrievers.document_compressors import FlashrankRerank
 from langchain.storage import LocalFileStore
@@ -17,18 +17,20 @@ from langchain.retrievers import ParentDocumentRetriever
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from ingestion.embed import get_embedding_function
+from core.config import (
+    DB_FOLDER,
+    PARENT_DOCS_FOLDER,
+    CHROMA_COLLECTION_NAME,
+    CHILD_CHUNK_SIZE,
+    PARENT_CHUNK_SIZE,
+    RAG_PROMPT_TEMPLATE,
+    USE_RERANKING,
+    RERANKING_MODEL,
+    LLM_MODEL,
+    GROQ_API_KEY
+)
 
 load_dotenv()
-
-PROMPT_TEMPLATE = """
-Answer the question based only on the following context:
-
-{context}
-
----
-
-Answer the question based on the above context: {question}
-"""
 
 def query_rag(query_text: str):
     """
@@ -38,17 +40,17 @@ def query_rag(query_text: str):
     embedding_function = get_embedding_function()
     
     vectorstore = Chroma(
-        collection_name="split_parents",
-        persist_directory="db/",
+        collection_name=CHROMA_COLLECTION_NAME,
+        persist_directory=DB_FOLDER,
         embedding_function=embedding_function
     )
     
-    fs = LocalFileStore("db/parent_docs")
+    fs = LocalFileStore(PARENT_DOCS_FOLDER)
     store = create_kv_docstore(fs)
 
     # 2. Setup Retrievers
-    child_splitter = RecursiveCharacterTextSplitter(chunk_size=400)
-    parent_splitter = RecursiveCharacterTextSplitter(chunk_size=2000)
+    child_splitter = RecursiveCharacterTextSplitter(chunk_size=CHILD_CHUNK_SIZE)
+    parent_splitter = RecursiveCharacterTextSplitter(chunk_size=PARENT_CHUNK_SIZE)
 
     base_retriever = ParentDocumentRetriever(
         vectorstore=vectorstore,
@@ -57,16 +59,18 @@ def query_rag(query_text: str):
         parent_splitter=parent_splitter,
     )
 
-    # 3. Add Reranking
-    compressor = FlashrankRerank(model="ms-marco-MiniLM-L-12-v2")
-    compression_retriever = ContextualCompressionRetriever(
-        base_compressor=compressor, 
-        base_retriever=base_retriever
-    )
+    # 3. Add Reranking if enabled
+    if USE_RERANKING:
+        compressor = FlashrankRerank(model=RERANKING_MODEL)
+        compression_retriever = ContextualCompressionRetriever(
+            base_compressor=compressor, 
+            base_retriever=base_retriever
+        )
+        results = compression_retriever.invoke(query_text)
+    else:
+        results = base_retriever.invoke(query_text)
 
     # 4. Search & Answer
-    results = compression_retriever.invoke(query_text)
-
     if not results:
         return {
             "answer": "No relevant context found.", 
@@ -74,10 +78,10 @@ def query_rag(query_text: str):
         }
 
     context_text = "\n\n---\n\n".join([doc.page_content for doc in results])
-    prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
+    prompt_template = ChatPromptTemplate.from_template(RAG_PROMPT_TEMPLATE)
     prompt = prompt_template.format(context=context_text, question=query_text)
     
-    model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.7)
+    model = ChatGroq(model=LLM_MODEL, temperature=0.7, api_key=GROQ_API_KEY)
     response = model.invoke(prompt)
 
     # 5. Return Structured Data

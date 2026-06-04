@@ -7,25 +7,36 @@ from langchain_chroma import Chroma
 from langchain.retrievers import ParentDocumentRetriever
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-def ingest_documents(documents, embedding_function, batch_size=45):
-    # 1. Define Paths
-    vector_db_path = "db/"
-    parent_docs_path = "db/parent_docs" 
+from core.config import (
+    DB_FOLDER,
+    PARENT_DOCS_FOLDER,
+    CHROMA_COLLECTION_NAME,
+    CHILD_CHUNK_SIZE,
+    CHILD_CHUNK_OVERLAP,
+    PARENT_CHUNK_SIZE,
+    PARENT_CHUNK_OVERLAP,
+    INGESTION_BATCH_SIZE,
+    BATCH_SLEEP_TIME
+)
+
+def ingest_documents(documents, embedding_function, batch_size=None):
+    if batch_size is None:
+        batch_size = INGESTION_BATCH_SIZE
 
     # 2. Initialize Vector Store (Child chunks)
     vectorstore = Chroma(
-        collection_name="split_parents",
-        persist_directory=vector_db_path,
+        collection_name=CHROMA_COLLECTION_NAME,
+        persist_directory=DB_FOLDER,
         embedding_function=embedding_function
     )
 
     # 3. Initialize Doc Store (Parent chunks) 
-    fs = LocalFileStore(parent_docs_path)
+    fs = LocalFileStore(PARENT_DOCS_FOLDER)
     store = create_kv_docstore(fs)
 
     # 4. Define Splitters
-    child_splitter = RecursiveCharacterTextSplitter(chunk_size=400, chunk_overlap=50)
-    parent_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=200)
+    child_splitter = RecursiveCharacterTextSplitter(chunk_size=CHILD_CHUNK_SIZE, chunk_overlap=CHILD_CHUNK_OVERLAP)
+    parent_splitter = RecursiveCharacterTextSplitter(chunk_size=PARENT_CHUNK_SIZE, chunk_overlap=PARENT_CHUNK_OVERLAP)
 
     # 5. Create the Retriever
     retriever = ParentDocumentRetriever(
@@ -45,7 +56,7 @@ def ingest_documents(documents, embedding_function, batch_size=45):
         try:
             retriever.add_documents(batch, ids=None)
             print("✅")
-            time.sleep(1.0) 
+            time.sleep(BATCH_SLEEP_TIME) 
         except Exception as e:
             print(f"\n   ❌ Error on batch: {e}")
             raise e
