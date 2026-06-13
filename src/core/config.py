@@ -20,6 +20,7 @@ os.makedirs(PARENT_DOCS_FOLDER, exist_ok=True)
 
 # EMBEDDING & MODEL SETTINGS
 # Using Ollama local embeddings (requires Ollama to be running)
+BASE_URL = "http://localhost:11434"
 EMBEDDING_MODEL = "embeddinggemma:300m"
 EMBEDDING_PROVIDER = "ollama"  # Options: "ollama", "openai", "huggingface"
 
