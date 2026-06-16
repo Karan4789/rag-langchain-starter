@@ -1,5 +1,5 @@
 import pandas as pd
-from langchain.schema import Document
+from langchain_classic.schema import Document
 
 def load_excel(file_path):
     """

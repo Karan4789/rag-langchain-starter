@@ -7,14 +7,14 @@ from dotenv import load_dotenv
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from langchain_chroma import Chroma
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
-from langchain.retrievers import ContextualCompressionRetriever
-from langchain.retrievers.document_compressors import FlashrankRerank
-from langchain.storage import LocalFileStore
-from langchain.storage._lc_store import create_kv_docstore
-from langchain.retrievers import ParentDocumentRetriever
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_classic.retrievers import ContextualCompressionRetriever
+from langchain_classic.retrievers.document_compressors import FlashrankRerank
+from langchain_classic.storage import LocalFileStore
+from langchain_classic.storage._lc_store import create_kv_docstore
+from langchain_classic.retrievers import ParentDocumentRetriever
+from langchain_classic.text_splitter import RecursiveCharacterTextSplitter
 
 from ingestion.embed import get_embedding_function
 from core.config import (

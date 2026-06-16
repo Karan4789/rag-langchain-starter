@@ -1,11 +1,11 @@
 import time
 import os
 import pickle
-from langchain.storage import LocalFileStore
-from langchain.storage._lc_store import create_kv_docstore
+from langchain_classic.storage import LocalFileStore
+from langchain_classic.storage._lc_store import create_kv_docstore
 from langchain_chroma import Chroma
-from langchain.retrievers import ParentDocumentRetriever
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_classic.retrievers import ParentDocumentRetriever
+from langchain_classic.text_splitter import RecursiveCharacterTextSplitter
 
 from core.config import (
     DB_FOLDER,
@@ -27,7 +27,8 @@ def ingest_documents(documents, embedding_function, batch_size=None):
     vectorstore = Chroma(
         collection_name=CHROMA_COLLECTION_NAME,
         persist_directory=DB_FOLDER,
-        embedding_function=embedding_function
+        embedding_function=embedding_function,
+        collection_metadata={"hnsw:space": "cosine"}
     )
 
     # 3. Initialize Doc Store (Parent chunks) 

@@ -12,6 +12,6 @@ def get_embedding_function():
     """
     embeddings = OllamaEmbeddings(
         model=EMBEDDING_MODEL,
-        base_url=BASE_URL
+        base_url="http://localhost:11434"
         )
     return embeddings

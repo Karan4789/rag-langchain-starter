@@ -11,6 +11,7 @@ dependencies = [
     "flashrank>=0.2.10",
     "langchain>=0.3.27",
     "langchain-chroma>=0.2.6",
+    "langchain-classic>=1.0.8",
     "langchain-cohere>=0.4.6",
     "langchain-community>=0.3.29",
     "langchain-groq>=0.3.8",
