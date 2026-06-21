@@ -20,7 +20,7 @@ from ingestion.embed import get_embedding_function
 from core.config import (
     DB_FOLDER,
     PARENT_DOCS_FOLDER,
-    CHROMA_COLLECTION_NAME,
+    CHROMA_COLLECTION_NAME,     
     CHILD_CHUNK_SIZE,
     PARENT_CHUNK_SIZE,
     RAG_PROMPT_TEMPLATE,

@@ -1,3 +1,4 @@
+# src/ingestion/loaders/excel.py
 import pandas as pd
 from langchain_classic.schema import Document
 

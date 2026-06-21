@@ -21,7 +21,7 @@ os.makedirs(PARENT_DOCS_FOLDER, exist_ok=True)
 # EMBEDDING & MODEL SETTINGS
 # Using Ollama local embeddings (requires Ollama to be running)
 BASE_URL = "http://localhost:11434"
-EMBEDDING_MODEL = "embeddinggemma:latest"
+EMBEDDING_MODEL = "nomic-embed-text:v1.5" #"embeddinggemma:latest" 
 EMBEDDING_PROVIDER = "ollama"  # Options: "ollama", "openai", "huggingface"
 
 # LLM Model for generation
@@ -40,7 +40,7 @@ PARENT_CHUNK_SIZE = 1200
 PARENT_CHUNK_OVERLAP = 150  
 
 # Batch processing
-INGESTION_BATCH_SIZE = 60
+INGESTION_BATCH_SIZE = 20
 BATCH_SLEEP_TIME = 2.0  # seconds between batches
 
 # RETRIEVAL SETTINGS
