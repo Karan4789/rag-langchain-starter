@@ -65,13 +65,15 @@ API_RELOAD = True  # Hot reload during development
 
 # PROMPT TEMPLATES
 RAG_PROMPT_TEMPLATE = """
-Answer the question based only on the following context:
+{skill}
 
+Answer using the provided context.
+
+Context:
 {context}
 
----
-
-Answer the question based on the above context: {question}
+Question:
+{question}
 """
 
 # LOGGING

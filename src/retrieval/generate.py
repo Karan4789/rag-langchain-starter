@@ -15,6 +15,7 @@ from langchain_classic.storage import LocalFileStore
 from langchain_classic.storage._lc_store import create_kv_docstore
 from langchain_classic.retrievers import ParentDocumentRetriever
 from langchain_classic.text_splitter import RecursiveCharacterTextSplitter
+from utils.skill_loader import load_skill
 
 from ingestion.embed import get_embedding_function
 from core.config import (
@@ -76,10 +77,16 @@ def query_rag(query_text: str):
             "answer": "No relevant context found.", 
             "sources": []
         }
+        
+    document_type = results[0].metadata.get(
+    "document_type",
+    "general"
+)
+    skill = load_skill(document_type)
 
     context_text = "\n\n---\n\n".join([doc.page_content for doc in results])
     prompt_template = ChatPromptTemplate.from_template(RAG_PROMPT_TEMPLATE)
-    prompt = prompt_template.format(context=context_text, question=query_text)
+    prompt = prompt_template.format(skill=skill,context=context_text, question=query_text)
     
     model = ChatGroq(model=LLM_MODEL, temperature=0.7, api_key=GROQ_API_KEY)
     response = model.invoke(prompt)
