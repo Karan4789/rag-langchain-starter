@@ -97,20 +97,3 @@ def query_rag(query_text: str):
         "sources": [doc.page_content for doc in results]
     }
 
-def main():
-    # CLI Entry Point
-    parser = argparse.ArgumentParser()
-    parser.add_argument("query_text", help="The query text.")
-    args = parser.parse_args()
-    
-    result = query_rag(args.query_text)
-
-    print("\n--- RESPONSE ---")
-    print(result["answer"])
-    
-    print("\n--- SOURCES (Parent Docs) ---")
-    for i, src in enumerate(result["sources"]):
-        print(f"{i+1}. Preview: {src[:100]}...")
-
-if __name__ == "__main__":
-    main()

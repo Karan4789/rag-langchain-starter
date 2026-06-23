@@ -10,3 +10,4 @@ def load_pdf(file_path):
     print(f"   📄 Using PyMuPDFLoader for {os.path.basename(file_path)}...")
     loader = PyMuPDFLoader(file_path)
     return loader.load()
+# document_type = detect_document_type(docs)
