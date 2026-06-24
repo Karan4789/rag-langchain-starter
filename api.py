@@ -49,11 +49,11 @@ async def upload_and_ingest(file: UploadFile = File(...)):
         with open(file_location, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
             
-        print(f"📂 Saved file to {file_location}")
+        print(f" Saved file to {file_location}")
 
         # 2. Trigger Ingestion (Processes ALL files in data/)
         # Note: Ideally, you'd only ingest the NEW file, but for now we re-run all.
-        print("🚀 Starting ingestion...")
+        print(" Starting ingestion...")
         documents = load_documents()
         embedding_function = get_embedding_function()
         ingest_documents(documents, embedding_function)

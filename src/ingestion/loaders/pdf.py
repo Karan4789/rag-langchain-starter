@@ -9,4 +9,17 @@ def load_pdf(file_path):
     """
     print(f"   📄 Using PyMuPDFLoader for {os.path.basename(file_path)}...")
     loader = PyMuPDFLoader(file_path)
-    return loader.load()
+    
+    docs = loader.load()
+
+    # Temporary checking for document type, can be improved with a more robust detection mechanism
+    document_type = "book"
+
+    for doc in docs:
+        doc.metadata["file_type"] = "pdf"
+        doc.metadata["document_type"] = document_type
+
+    return docs
+
+# return loader.load()
+# document_type = detect_document_type(docs)

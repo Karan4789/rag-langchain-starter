@@ -15,6 +15,7 @@ from langchain_classic.storage import LocalFileStore
 from langchain_classic.storage._lc_store import create_kv_docstore
 from langchain_classic.retrievers import ParentDocumentRetriever
 from langchain_classic.text_splitter import RecursiveCharacterTextSplitter
+from utils.skill_loader import load_skill
 
 from ingestion.embed import get_embedding_function
 from core.config import (
@@ -69,6 +70,12 @@ def query_rag(query_text: str):
         results = compression_retriever.invoke(query_text)
     else:
         results = base_retriever.invoke(query_text)
+        
+    # DEBUG: Show metadata from first retrieved document
+    if results:
+        print("\n===== RETRIEVED METADATA =====")
+        print(results[0].metadata)
+        print("=============================\n")
 
     # 4. Search & Answer
     if not results:
@@ -76,10 +83,26 @@ def query_rag(query_text: str):
             "answer": "No relevant context found.", 
             "sources": []
         }
+        
+    document_type = results[0].metadata.get(
+    "document_type",
+    "general"
+)
+    skill = load_skill(document_type)
+    
+    #debugging prints
+    print("\n====================")
+    print(f"\nDocument Type: {document_type}")
+    print("====================")
+    
+    print("\n====================")
+    print("LOADED SKILL:")
+    print(skill[:300])
+    print("====================")
 
     context_text = "\n\n---\n\n".join([doc.page_content for doc in results])
     prompt_template = ChatPromptTemplate.from_template(RAG_PROMPT_TEMPLATE)
-    prompt = prompt_template.format(context=context_text, question=query_text)
+    prompt = prompt_template.format(skill=skill,context=context_text, question=query_text)
     
     model = ChatGroq(model=LLM_MODEL, temperature=0.7, api_key=GROQ_API_KEY)
     response = model.invoke(prompt)
@@ -90,20 +113,3 @@ def query_rag(query_text: str):
         "sources": [doc.page_content for doc in results]
     }
 
-def main():
-    # CLI Entry Point
-    parser = argparse.ArgumentParser()
-    parser.add_argument("query_text", help="The query text.")
-    args = parser.parse_args()
-    
-    result = query_rag(args.query_text)
-
-    print("\n--- RESPONSE ---")
-    print(result["answer"])
-    
-    print("\n--- SOURCES (Parent Docs) ---")
-    for i, src in enumerate(result["sources"]):
-        print(f"{i+1}. Preview: {src[:100]}...")
-
-if __name__ == "__main__":
-    main()
