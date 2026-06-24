@@ -40,7 +40,7 @@ def ingest_documents(documents, embedding_function, batch_size=None):
     # 4. Define Splitters
     child_splitter = RecursiveCharacterTextSplitter(chunk_size=CHILD_CHUNK_SIZE, chunk_overlap=CHILD_CHUNK_OVERLAP)
     parent_splitter = RecursiveCharacterTextSplitter(chunk_size=PARENT_CHUNK_SIZE, chunk_overlap=PARENT_CHUNK_OVERLAP)
-
+                                                                                                                        
     # 5. Create the Retriever
     retriever = ParentDocumentRetriever(
         vectorstore=vectorstore,

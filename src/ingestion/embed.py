@@ -2,7 +2,7 @@
 
 from langchain_ollama import OllamaEmbeddings
 from dotenv import load_dotenv
-from core.config import EMBEDDING_MODEL, BASE_URL
+from core.config import EMBEDDING_MODEL
 
 load_dotenv()
 

@@ -70,6 +70,12 @@ def query_rag(query_text: str):
         results = compression_retriever.invoke(query_text)
     else:
         results = base_retriever.invoke(query_text)
+        
+    # DEBUG: Show metadata from first retrieved document
+    if results:
+        print("\n===== RETRIEVED METADATA =====")
+        print(results[0].metadata)
+        print("=============================\n")
 
     # 4. Search & Answer
     if not results:
@@ -83,6 +89,16 @@ def query_rag(query_text: str):
     "general"
 )
     skill = load_skill(document_type)
+    
+    #debugging prints
+    print("\n====================")
+    print(f"\nDocument Type: {document_type}")
+    print("====================")
+    
+    print("\n====================")
+    print("LOADED SKILL:")
+    print(skill[:300])
+    print("====================")
 
     context_text = "\n\n---\n\n".join([doc.page_content for doc in results])
     prompt_template = ChatPromptTemplate.from_template(RAG_PROMPT_TEMPLATE)
