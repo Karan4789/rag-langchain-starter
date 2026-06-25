@@ -90,15 +90,7 @@ def query_rag(query_text: str):
 )
     skill = load_skill(document_type)
     
-    #debugging prints
-    print("\n====================")
-    print(f"\nDocument Type: {document_type}")
-    print("====================")
-    
-    print("\n====================")
-    print("LOADED SKILL:")
-    print(skill[:300])
-    print("====================")
+    print(f"Using Skill: {document_type}")
 
     context_text = "\n\n---\n\n".join([doc.page_content for doc in results])
     prompt_template = ChatPromptTemplate.from_template(RAG_PROMPT_TEMPLATE)
