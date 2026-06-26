@@ -46,24 +46,18 @@ def classify_document(file_path: str, text: str = "") -> str:
     extension = os.path.splitext(filename)[1].lower()
 
     text = text.lower()
-
-    # --------------------------------------------------
+    
     # Rule 1 : Spreadsheet
-    # --------------------------------------------------
 
     if extension in [".csv", ".xlsx", ".xls"]:
         return DOCUMENT_TYPES["SPREADSHEET"]
 
-    # --------------------------------------------------
     # Rule 2 : PowerPoint
-    # --------------------------------------------------
 
     if extension in [".ppt", ".pptx"]:
         return DOCUMENT_TYPES["PRESENTATION"]
 
-    # --------------------------------------------------
     # Rule 3 : Resume
-    # --------------------------------------------------
 
     if (
         "resume" in filename
@@ -76,9 +70,7 @@ def classify_document(file_path: str, text: str = "") -> str:
     ):
         return DOCUMENT_TYPES["RESUME"]
 
-    # --------------------------------------------------
     # Rule 4 : Research Paper
-    # --------------------------------------------------
 
     research_keywords = [
         "abstract",
@@ -91,10 +83,8 @@ def classify_document(file_path: str, text: str = "") -> str:
 
     if sum(keyword in text for keyword in research_keywords) >= 3:
         return DOCUMENT_TYPES["RESEARCH_PAPER"]
-
-    # --------------------------------------------------
+    
     # Rule 5 : Invoice
-    # --------------------------------------------------
 
     invoice_keywords = [
         "invoice",
@@ -106,9 +96,7 @@ def classify_document(file_path: str, text: str = "") -> str:
     if any(keyword in text for keyword in invoice_keywords):
         return DOCUMENT_TYPES["INVOICE"]
 
-    # --------------------------------------------------
     # Rule 6 : Contract
-    # --------------------------------------------------
 
     contract_keywords = [
         "agreement",
@@ -121,9 +109,7 @@ def classify_document(file_path: str, text: str = "") -> str:
     if sum(keyword in text for keyword in contract_keywords) >= 2:
         return DOCUMENT_TYPES["CONTRACT"]
 
-    # --------------------------------------------------
     # Rule 7 : Book
-    # --------------------------------------------------
 
     book_keywords = [
         "chapter",
@@ -136,8 +122,6 @@ def classify_document(file_path: str, text: str = "") -> str:
     if any(keyword in text for keyword in book_keywords):
         return DOCUMENT_TYPES["BOOK"]
 
-    # --------------------------------------------------
     # No rule matched
-    # --------------------------------------------------
 
     return DOCUMENT_TYPES["UNKNOWN"]
