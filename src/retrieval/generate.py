@@ -60,7 +60,7 @@ def query_rag(query_text: str):
         parent_splitter=parent_splitter,
     )
 
-    # 3. Add Reranking if enabled
+    # 3. Reranking
     if USE_RERANKING:
         compressor = FlashrankRerank(model=RERANKING_MODEL)
         compression_retriever = ContextualCompressionRetriever(
