@@ -1,16 +1,12 @@
 # src/ingestion/classify_llm.py
 
 import os
-
-from langchain_groq import ChatGroq
-
+from langchain_community.chat_models import ChatOllama
 from core.config import (
-    GROQ_API_KEY,
     CLASSIFIER_MODEL
 )
 
 ALLOWED_TYPES = {
-
     "book",
     "research_paper",
     "resume",
@@ -19,14 +15,12 @@ ALLOWED_TYPES = {
     "invoice",
     "contract",
     "general_document"
-
 }
 
 
 def llm_classifier(file_path: str, text: str):
 
     filename = os.path.basename(file_path)
-
     prompt = f"""
         You are a document classifier.
         Classify the document into EXACTLY ONE category.
@@ -56,11 +50,8 @@ def llm_classifier(file_path: str, text: str):
         - No JSON
 """
 
-    model = ChatGroq(model=CLASSIFIER_MODEL,api_key=GROQ_API_KEY,temperature=0)
-
-    response = model.invoke(
-        prompt
-    )
+    model = ChatOllama(model=CLASSIFIER_MODEL,temperature=0)
+    response = model.invoke(prompt)
 
     prediction = (response.content.strip().lower())
 

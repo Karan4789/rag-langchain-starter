@@ -3,6 +3,7 @@
 import os
 from .loaders.pdf import load_pdf
 from .loaders.excel import load_excel
+from .classify import classify_document
 
 def load_documents(data_dir="data"):
     all_documents = []
