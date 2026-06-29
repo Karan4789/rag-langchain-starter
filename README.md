@@ -2,29 +2,18 @@
 
 A Retrieval-Augmented Generation (RAG) system that uses **Parent Document Retrieval** and **FlashrankRerank** to provide accurate answers from your PDF documents.
 
-## What is RAG?
-
-Retrieval-Augmented Generation (RAG) enhances Large Language Models (LLMs) by grounding their responses in your own documents. Instead of relying solely on pre-trained knowledge, the system retrieves relevant information from your documents to generate accurate, context-aware answers.
-
-**How it works:**
-1. **Ingestion**: Documents are loaded, split into parent and child chunks, embedded, and stored in a vector database
-2. **Retrieval**: When you ask a question, the system searches for relevant child chunks, retrieves their parent chunks for better context, and reranks them
-3. **Generation**: The LLM uses the retrieved context to generate an informed answer
-
-For more details, read this article: [Retrieval-Augmented Generation](https://medium.com/%40bellasenior/retrieval-augmented-generation-23005432cbc1)
-
 ## Key Features
 
 - **Parent Document Retrieval**: Searches using small chunks but retrieves larger parent chunks for better context
 - **FlashrankRerank**: Improves result quality by reranking retrieved documents
-- **Local Embeddings**: Uses Ollama's `embeddinggemma:300m` model locally
-- **Google Gemini**: Powered by `gemini-2.5-flash` for answer generation
+- **Local Embeddings**: Uses Ollama's `embeddinggemma:300m` or use `nomic-embed-text:v1.5` model locally
+- **Groq**: Powered by `llama-3.3-70b-versatile` for answer generation
 
 ## Prerequisites
 
 - Python 3.12+
 - [Ollama](https://ollama.com/) installed and running
-- Google API key for Gemini
+- Groq API key
 
 ## Setup
 
@@ -52,13 +41,13 @@ For more details, read this article: [Retrieval-Augmented Generation](https://me
 
 4. **Pull the Ollama embedding model**
    ```bash
-   ollama pull embeddinggemma:300m
+   ollama pull embeddinggemma:300m or ollama pull nomic-embed-text:v1.5
    ```
 
 5. **Set up environment variables**
    Create a `.env` file in the project root:
    ```
-   GOOGLE_API_KEY=your-google-api-key-here
+   GROQ_API_KEY=your-groq-api-key-here
    ```
 
 6. **Add your documents**
@@ -68,13 +57,14 @@ For more details, read this article: [Retrieval-Augmented Generation](https://me
 
 ### 1. Ingest Documents
 
-Run the ingestion pipeline to process your PDFs:
+Run the pipeline to process your files:
 
 ```bash
-python src/ingest.py
+uvicorn api:app --reload
 ```
 
 This will:
+- Upload the file in the endpoint http://127.0.0.1:8000/ingest
 - Load all PDFs from `data/`
 - Split them into parent chunks (2000 chars) and child chunks (400 chars)
 - Create embeddings for child chunks using Ollama
@@ -85,72 +75,33 @@ This will:
 Ask questions about your documents:
 
 ```bash
-python src/retrieval/generate.py "What is the main topic?"
+{
+  "question": "string"
+}
 ```
 
 The system will:
+- Ask the questions in the endpoint http://127.0.0.1:8000/query
 - Search for relevant child chunks
 - Retrieve parent chunks for context
 - Rerank results using Flashrank
-- Generate an answer using Google Gemini
+- Groq model uses the relevant skill to understand the context of the file 
 
-### 3. Run Full Pipeline (Optional)
+## Architecture 
+![Architecture](assets/architecture_rag.png)
 
-Run ingestion and query in one command:
-
-```bash
-python app.py "Your question here"
-```
-
-This clears the database, re-ingests documents, and generates an answer.
-
-## Project Structure
-
-```
-rag/
-├── data/                           # Your PDF documents
-├── db/                             # ChromaDB vector store
-│   ├── chroma.sqlite3
-│   ├── a381fad3-.../              # Vector embeddings
-│   └── parent_docs/               # Parent document store
-├── src/
-│   ├── ingest.py                  # Main ingestion script
-│   ├── ingestion/
-│   │   ├── load.py                # Load PDFs
-│   │   ├── embed.py               # Ollama embeddings
-│   │   └── store.py               # Parent Document Retrieval storage
-│   └── retrieval/
-│       ├── generate.py            # Generate answers with reranking
-│       └── search.py              # Basic similarity search
-├── app.py                         # Full pipeline runner
-├── .env                           # API keys
-├── requirements.txt
-└── README.md
-```
-
-## How Parent Document Retrieval Works
-
-1. **Child Chunks (400 chars)**: Small, focused chunks for precise embedding and search
-2. **Parent Chunks (2000 chars)**: Larger chunks that provide full context to the LLM
-3. **Search Process**: 
-   - Query is embedded and matched against child chunks
-   - Parent chunks are retrieved for matched children
-   - Results are reranked using Flashrank
-   - Top parent chunks are sent to the LLM
-
-This approach balances search precision with contextual richness.
 
 ## Technologies
 
 - **LangChain**: RAG orchestration
-- **Ollama** (`embeddinggemma:300m`): Local embeddings
+- **Ollama** (`embeddinggemma:300m or nomic-embed-text:v1.5`): Local embeddings
 - **ChromaDB**: Vector database
-- **Google Gemini** (`gemini-2.5-flash`): LLM for generation
+- **Groq model** (`llama-3.3-70b-versatile`): LLM for generation
 - **Flashrank**: Result reranking
 - **FastAPI**: (Future) API endpoints
 
 ## Troubleshooting
 
 - **Ollama connection error**: Make sure Ollama is running (`ollama serve`)
-- **Google API error**: Verify your `GOOGLE_API_KEY` in `.env`
+- **Google API error**: Verify your `GROQ_API_KEY` in `.env`
 - **Empty results**: Ensure documents are properly ingested before querying
