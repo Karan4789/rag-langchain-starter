@@ -20,8 +20,10 @@ def classify_document(file_path: str, docs) -> str:
 
     sample = "\n".join(
         doc.page_content
-        for doc in docs[:3]
-    )[:3000]
+        for doc in docs[:10]
+    )[:2000]
+    
+    print(sample)
 
     prediction = rule_classifier(
         file_path,
