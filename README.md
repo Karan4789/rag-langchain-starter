@@ -103,5 +103,5 @@ The system will:
 ## Troubleshooting
 
 - **Ollama connection error**: Make sure Ollama is running (`ollama serve`)
-- **Google API error**: Verify your `GROQ_API_KEY` in `.env`
+- **Groq API error**: Verify your `GROQ_API_KEY` in `.env`
 - **Empty results**: Ensure documents are properly ingested before querying

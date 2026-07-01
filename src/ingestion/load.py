@@ -3,6 +3,7 @@
 import os
 from .loaders.pdf import load_pdf
 from .loaders.excel import load_excel
+from .classify import classify_document
 
 def load_documents(data_dir="data"):
     all_documents = []
@@ -21,8 +22,19 @@ def load_documents(data_dir="data"):
         if ext == ".pdf":
             try:
                 docs = load_pdf(file_path)
+                
+                document_type = classify_document(file_path,docs)
+                for doc in docs:
+                    doc.metadata["document_type"] = document_type
+                    doc.metadata["file_type"] = "pdf"
+                    
+                print(f"📑 Classified as: {document_type}")
+                
+                
                 all_documents.extend(docs)
+                
                 print(f"   ✅ Loaded {len(docs)} chunks from {filename}")
+                
             except Exception as e:
                 print(f"   ❌ Failed to load {filename}: {e}")
 
@@ -30,7 +42,15 @@ def load_documents(data_dir="data"):
         elif ext in [".xlsx", ".xls", ".csv"]:
             try:
                 docs = load_excel(file_path)
+                
+                document_type = classify_document(file_path,docs)
+                for doc in docs:
+                    doc.metadata["document_type"] = document_type
+                    doc.metadata["file_type"] = ext[1:]
+                    
                 all_documents.extend(docs)
+                print(f"📑 Classified as: {document_type}")
+                
                 print(f"   ✅ Loaded {len(docs)} rows from {filename}")
             except Exception as e:
                 print(f"   ❌ Failed to load Excel {filename}: {e}")

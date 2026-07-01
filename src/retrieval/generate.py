@@ -60,7 +60,7 @@ def query_rag(query_text: str):
         parent_splitter=parent_splitter,
     )
 
-    # 3. Add Reranking if enabled
+    # 3. Reranking
     if USE_RERANKING:
         compressor = FlashrankRerank(model=RERANKING_MODEL)
         compression_retriever = ContextualCompressionRetriever(
@@ -90,15 +90,7 @@ def query_rag(query_text: str):
 )
     skill = load_skill(document_type)
     
-    #debugging prints
-    print("\n====================")
-    print(f"\nDocument Type: {document_type}")
-    print("====================")
-    
-    print("\n====================")
-    print("LOADED SKILL:")
-    print(skill[:300])
-    print("====================")
+    print(f"Using Skill: {document_type}")
 
     context_text = "\n\n---\n\n".join([doc.page_content for doc in results])
     prompt_template = ChatPromptTemplate.from_template(RAG_PROMPT_TEMPLATE)

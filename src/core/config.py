@@ -30,6 +30,9 @@ LLM_PROVIDER = "groq"
 # GROQ API Key (required for llama-3.3-70b-versatile)
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 
+# LLM Model for classification
+CLASSIFIER_MODEL = "qwen3:8b"
+
 # INGESTION SETTINGS
 # Parent Document Retrieval - Chunk sizes
 CHILD_CHUNK_SIZE = 400
