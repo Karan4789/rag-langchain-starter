@@ -7,7 +7,7 @@ A Retrieval-Augmented Generation (RAG) system that uses **Parent Document Retrie
 - **Parent Document Retrieval**: Searches using small chunks but retrieves larger parent chunks for better context
 - **FlashrankRerank**: Improves result quality by reranking retrieved documents
 - **Local Embeddings**: Uses Ollama's `embeddinggemma:300m` or use `nomic-embed-text:v1.5` model locally
-- **Groq**: Powered by `llama-3.3-70b-versatile` for answer generation
+- **Groq**: Powered by `llama-3.3-70b-versatile` for answer generation and document classification for files that has been uploaded
 
 ## Prerequisites
 
@@ -103,5 +103,5 @@ The system will:
 ## Troubleshooting
 
 - **Ollama connection error**: Make sure Ollama is running (`ollama serve`)
-- **Google API error**: Verify your `GROQ_API_KEY` in `.env`
+- **Groq API error**: Verify your `GROQ_API_KEY` in `.env`
 - **Empty results**: Ensure documents are properly ingested before querying
